@@ -52,14 +52,14 @@ echo "=== Clean any previous build artifacts ==="
 rm -rf "$DERIVED_DATA_PATH" "$WD"/*
 
 echo "=== Build WebDriverAgentRunner for real iOS device (arm64) ==="
+export XCODE_APPLE_ID="$APPLE_ID"
+export XCODE_APPLE_APP_PASSWORD="$APPLE_APP_PASSWORD"
 xcodebuild clean build-for-testing \
   -project WebDriverAgent.xcodeproj \
   -scheme "$SCHEME" \
   -destination 'generic/platform=iOS' \
   -derivedDataPath "$DERIVED_DATA_PATH" \
   -allowProvisioningUpdates \
-  -authenticationAppleID "$APPLE_ID" \
-  -authenticationPassword "$APPLE_APP_PASSWORD" \
   DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
   CODE_SIGN_STYLE=Automatic \
   CODE_SIGN_IDENTITY="Apple Development" \
