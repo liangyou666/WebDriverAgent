@@ -1,0 +1,60 @@
+name: Build WebDriverAgent IPA
+
+on:
+  workflow_dispatch:
+    inputs:
+      scheme:
+        description: 'Xcode scheme to build'
+        required: false
+        default: 'WebDriverAgentRunner'
+        type: string
+      ios_version:
+        description: 'Minimum iOS version'
+        required: false
+        default: '14.0'
+        type: string
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: |
+          XCODE_PATH=$(ls -d /Applications/Xcode*.app | sort -V | tail -1)
+          echo "Using Xcode: $XCODE_PATH"
+          sudo xcode-select -s "$XCODE_PATH"
+          xcodebuild -version
+
+      - name: Build WebDriverAgent
+        env:
+          SCHEME: ${{ inputs.scheme || 'WebDriverAgentRunner' }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+        run: |
+          chmod +x ./Scripts/ci/build-signed-ipa.sh
+          ./Scripts/ci/build-signed-ipa.sh
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: WebDriverAgent
+          path: |
+            wda-build-output/WebDriverAgent.ipa
+            wda-build-output/WebDriverAgent-Runner.zip
+          retention-days: 7
+          if-no-files-found: error
+
+      - name: Upload build log (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: wda-build-output/xcodebuild.log
+          retention-days: 3
+          if-no-files-found: warn
