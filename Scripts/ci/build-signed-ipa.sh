@@ -35,9 +35,11 @@ security default-keychain -s "$KEYCHAIN_NAME"
 security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME"
 # Extend unlock timeout to avoid CI timeout issues
 security set-keychain-settings -t 3600 -l "$KEYCHAIN_NAME"
+# Allow Apple tools to access the keychain without prompting
+security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_NAME" > /dev/null 2>&1 || true
 
 echo "=== Store Apple ID credentials in Keychain ==="
-# Using the CI/CD pattern for Xcode automatic signing
+# Store credentials that Xcode can discover for automatic signing
 security add-generic-password \
   -s "Xcode-Altool" \
   -a "$APPLE_ID" \
@@ -46,14 +48,21 @@ security add-generic-password \
   -T /usr/bin/codesign \
   -T /usr/bin/xcodebuild
 
+# Also add as internet password — some Xcode versions look for this
+security add-internet-password \
+  -s "apple.com" \
+  -a "$APPLE_ID" \
+  -w "$APPLE_APP_PASSWORD" \
+  -r "http " \
+  -T /usr/bin/security \
+  -T /usr/bin/xcodebuild 2>/dev/null || true
+
 mkdir -p "$WD"
 
 echo "=== Clean any previous build artifacts ==="
 rm -rf "$DERIVED_DATA_PATH" "$WD"/*
 
 echo "=== Build WebDriverAgentRunner for real iOS device (arm64) ==="
-export XCODE_APPLE_ID="$APPLE_ID"
-export XCODE_APPLE_APP_PASSWORD="$APPLE_APP_PASSWORD"
 xcodebuild clean build-for-testing \
   -project WebDriverAgent.xcodeproj \
   -scheme "$SCHEME" \
