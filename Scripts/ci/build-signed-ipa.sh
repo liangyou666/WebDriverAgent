@@ -58,8 +58,8 @@ xcodebuild clean build-for-testing \
   -destination 'generic/platform=iOS' \
   -derivedDataPath "$DERIVED_DATA_PATH" \
   -allowProvisioningUpdates \
-  -authenticationKeyIssuerID "" \
-  -authenticationKeyID "" \
+  -authenticationAppleID "$APPLE_ID" \
+  -authenticationPassword "$APPLE_APP_PASSWORD" \
   DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
   CODE_SIGN_STYLE=Automatic \
   CODE_SIGN_IDENTITY="Apple Development" \
