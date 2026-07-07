@@ -16,50 +16,26 @@ on:
 
 jobs:
   build:
-    runs-on: macos-14
+    runs-on: macos-latest
     timeout-minutes: 30
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Select Xcode (must be 15.x for -authenticationAppleID support)
-        run: |
-          # Explicitly select Xcode 15.4 — Xcode 16 removed -authenticationAppleID
-          XCODE_PATH="/Applications/Xcode_15.4.app"
-          if [ ! -d "$XCODE_PATH" ]; then
-            echo "Xcode 15.4 not found, trying default..."
-            XCODE_PATH="/Applications/Xcode_15.4.0.app"
-          fi
-          echo "Using Xcode: $XCODE_PATH"
-          sudo xcode-select -s "$XCODE_PATH"
-          xcodebuild -version
-
-      - name: Build WebDriverAgent
+      - name: Build WebDriverAgent (unsigned)
         env:
           SCHEME: ${{ inputs.scheme || 'WebDriverAgentRunner' }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
         run: |
-          chmod +x ./Scripts/ci/build-signed-ipa.sh
-          ./Scripts/ci/build-signed-ipa.sh
+          chmod +x ./Scripts/ci/build-unsigned.sh
+          ./Scripts/ci/build-unsigned.sh
 
-      - name: Upload IPA artifact
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: WebDriverAgent
           path: |
-            wda-build-output/WebDriverAgent.ipa
             wda-build-output/WebDriverAgent-Runner.zip
+            wda-build-output/xcodebuild.log
           retention-days: 7
           if-no-files-found: error
-
-      - name: Upload build log (always)
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-log
-          path: wda-build-output/xcodebuild.log
-          retention-days: 3
-          if-no-files-found: warn
