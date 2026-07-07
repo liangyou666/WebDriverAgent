@@ -16,16 +16,21 @@ on:
 
 jobs:
   build:
-    runs-on: macos-13
+    runs-on: macos-14
     timeout-minutes: 30
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Select Xcode
+      - name: Select Xcode (must be 15.x for -authenticationAppleID support)
         run: |
-          XCODE_PATH=$(ls -d /Applications/Xcode*.app | sort -V | tail -1)
+          # Explicitly select Xcode 15.4 — Xcode 16 removed -authenticationAppleID
+          XCODE_PATH="/Applications/Xcode_15.4.app"
+          if [ ! -d "$XCODE_PATH" ]; then
+            echo "Xcode 15.4 not found, trying default..."
+            XCODE_PATH="/Applications/Xcode_15.4.0.app"
+          fi
           echo "Using Xcode: $XCODE_PATH"
           sudo xcode-select -s "$XCODE_PATH"
           xcodebuild -version
