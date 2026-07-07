@@ -404,7 +404,7 @@ describe('WebDriverAgent', function () {
       it('should have xctrunner automatically with default bundle id', function () {
         const args = Object.assign({}, fakeConstructorArgs);
         const agent = new WebDriverAgent(args);
-        expect(agent.bundleIdForXctest).to.equal('com.facebook.WebDriverAgentRunner.xctrunner');
+        expect(agent.bundleIdForXctest).to.equal('com.livpet.WebDriverAgentRunner.xctrunner');
       });
 
       it('should allow an empty string as xctrunner suffix', function () {
@@ -419,7 +419,7 @@ describe('WebDriverAgent', function () {
         const args = Object.assign({}, fakeConstructorArgs);
         args.updatedWDABundleIdSuffix = '';
         const agent = new WebDriverAgent(args);
-        expect(agent.bundleIdForXctest).to.equal('com.facebook.WebDriverAgentRunner');
+        expect(agent.bundleIdForXctest).to.equal('com.livpet.WebDriverAgentRunner');
       });
 
       it('should have an arbitrary xctrunner suffix', function () {
