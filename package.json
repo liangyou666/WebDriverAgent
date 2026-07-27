@@ -60,7 +60,7 @@
     "@types/mocha": "^10.0.1",
     "@types/node": "^26.0.0",
     "@types/sinon": "^22.0.0",
-    "appium-xcode": "^6.0.0",
+    "appium-xcode": "^7.1.0",
     "chai": "^6.0.0",
     "chai-as-promised": "^8.0.0",
     "conventional-changelog-conventionalcommits": "^9.3.1",
